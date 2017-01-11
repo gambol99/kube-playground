@@ -1,0 +1,12 @@
+*.swp
+*.pem
+*.csr
+*.rollout
+*.orig
+terraform.tfstate.backup
+terraform.tfstate
+secrets.env
+secrets/
+environments/play-*.tfvars
+.terraform
+TODO

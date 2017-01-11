@@ -1,0 +1,66 @@
+#!/usr/bin/env bash
+
+ENVIRONMENTS_DIR="environments"
+GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+PLATFORM_ENV=${PLATFORM_ENV:-"play"}
+PLATFORM_IMAGE=${PLATFORM_IMAGE:="quay.io/gambol99/kube-coreos"}
+PLATFORM_VERSION=${PLATFORM_VERSION:-"latest"}
+PLAYGROUND_DEFAULT="${ENVIRONMENTS_DIR}/${PLATFORM_ENV}.tfvars"
+PLAYGROUND_FILE="${ENVIRONMENTS_DIR}/${PLATFORM_ENV}-${USER}.tfvars"
+WORKDIR="/platform"
+NC='\e[0m'
+YELLOW='\e[0;33m'
+RED='\e[0;31m'
+
+annonce() {
+  (2>/dev/null echo -e "--> $@")
+}
+
+failed() {
+  (2>/dev/null echo -e "${RED}[error]${NC} $@")
+  exit 1
+}
+
+# run is responsible for creating the platform container and passing environment
+run() {
+  /usr/bin/docker run -ti --rm \
+    -e GIT_BRANCH="${GIT_BRANCH}" \
+    -e PLATFORM_ENV="${PLATFORM_ENV}" \
+    -e AWS_ACCESS_KEY_ID="${AWS_ACCESS_KEY_ID}" \
+    -e AWS_DEFAULT_REGION="${AWS_DEFAULT_REGION}" \
+    -e AWS_SECRET_ACCESS_KEY="${AWS_SECRET_ACCESS_KEY}" \
+    -v ${PWD}/${PLAYGROUND_FILE}:${WORKDIR}/env.tfvars \
+    -v ${PWD}/terraform:${WORKDIR}/terraform/.config.d \
+    ${PLATFORM_IMAGE}:${PLATFORM_VERSION}
+}
+
+# get_credentials is responsible for retrieving the credentials from the file
+get_credentials() {
+  [[ -n "${AWS_ACCESS_KEY_ID}"     ]] || AWS_ACCESS_KEY_ID=$(aws configure --profile ${PLATFORM_ENV} get aws_access_key_id 2>/dev/null)
+  [[ -n "${AWS_SECRET_ACCESS_KEY}" ]] || AWS_SECRET_ACCESS_KEY=$(aws configure --profile ${PLATFORM_ENV} get aws_secret_access_key)
+  [[ -n "${AWS_DEFAULT_REGION}"    ]] || AWS_DEFAULT_REGION=$(aws configure --profile ${PLATFORM_ENV} get region)
+}
+
+# setup_playground is responsible for prepping a playground environment if required
+setup_playground() {
+  if [[ ! -f "${PLAYGROUND_FILE}" ]]; then
+    annonce "Copying the default playground file: ${PLAYGROUND_DEFAULT} to: ${PLAYGROUND_FILE}"
+    annonce "Ensure to update the required envirnoment variables in the ${WORKDIR}/env.tfvars file"
+    cp ${PLAYGROUND_DEFAULT} ${PLAYGROUND_FILE} || failed "unable to copy the default playground file: ${PLAYGROUND_DEFAULT}"
+    sed -i "s/PLATFORM_ENV/${USER}/g" ${PLAYGROUND_FILE} || failed "unable to update the username in file: ${PLAYGROUND_FILE}"
+  fi
+  # update the platform environment to include the user
+  PLATFORM_ENV="${PLATFORM_ENV}-${USER}"
+}
+
+# step: retrieve the credentials
+get_credentials
+# step: setup the playground if required
+setup_playground
+
+[[ -n "${PLATFORM_ENV}"          ]] || failed "you have not specified an envirnoment (either -e or set PLATFORM_ENV envirnoment variable)"
+[[ -f "${PLAYGROUND_FILE}"       ]] || failed "the environment file: '${YELLOW}${PLAYGROUND_FILE}${NC}' does not exist"
+[[ -n "${AWS_ACCESS_KEY_ID}"     ]] || failed "unable to retrieve aws access for environment: ${PLATFORM_ENV}"
+[[ -n "${AWS_SECRET_ACCESS_KEY}" ]] || failed "unable to retrieve aws secret key for environment: ${PLATFORM_ENV}"
+
+run
