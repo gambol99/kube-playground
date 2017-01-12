@@ -139,7 +139,7 @@ Failed Units: 1
 # go into a master node
 core@ip-10-80-110-30 ~ $ ssh 10.80.10.100
 # check the journal logs
-core@ip-10-80-110-30 ~ $ journalctl -fl 
+core@ip-10-80-110-30 ~ $ journalctl -fl
 ```
 **Key Points**
 
