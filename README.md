@@ -13,20 +13,25 @@ There are a few prerequisites before doing a build, namely the KMS key use for a
 
 ```bash
 # --> Create the terraform bucket
-[jest@starfury kubernetes-platform]$ ./play.kube
+[jest@starfury kube-playground]$ ./run.kube
 --> Running Platform, with environment: play-jest
-[play-jest@platform] (master) $ kmsctl bucket create --bucket play-jest-kube-terraform-eu-west-1
+# --> List all the buckets
+[play-jest@platform] (master) $ kmsctl buckets
+# --> Create a s3 bucket for the terraform state
+[play-jest@platform] (master) $ kmsctl buckets create --bucket play-jest-kube-terraform-eu-west-1
 ... Update
 
 # --> Create the KMS key for encryption
 [play-jest@platform] (master) $ kmsctl kms create --name kube-play --description "A shared KMS used for playground builds"
+# --> List all the keys
+[play-jest@platform] (master) $ kmsctl kms
 ...
 
-# --> Remember to update the variables (kms_master_id and terraform_bucket_name) in the platform/env.tfvars file !!
+# --> Remember to update the variables (kms_master_id, terraform_bucket_name, dns zone and secret bucket) in the platform/env.tfvars file !!
 # Then update teh public and private dns zone for environment and the access lists for ssh and kubeapi access (defaults 0.0.0.0/0)
 
 # --> Kicking off the a build
-[play-jest@platform] (master) $ run  
+[play-jest@platform] (master) $ run
 ... BUILDING ...
 
 # --> Listing the instances
@@ -89,6 +94,11 @@ kube-system   Active    20m
 
 # By default kubedns and the dashboard has been automatically deployed via the kube-addons manifest.
 
+# Make changes and rerun terraform
+[play-jest@platform] (master) $ apply
+# Or check the terraform plan
+[play-jest@platform] (master) $ plan
+
 # Cleaning up the environment
 [play-jest@platform] (master) $ cleanup
 This will DELETE ALL resources, are you sure? (yes/no) yes
@@ -128,6 +138,8 @@ Failed Units: 1
   update-engine.service
 # go into a master node
 core@ip-10-80-110-30 ~ $ ssh 10.80.10.100
+# check the journal logs
+core@ip-10-80-110-30 ~ $ journalctl -fl 
 ```
 **Key Points**
 
