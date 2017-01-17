@@ -43,14 +43,14 @@ get_credentials() {
 
 # setup_playground is responsible for prepping a playground environment if required
 setup_playground() {
+  PLATFORM_ENV="${PLATFORM_ENV}-${USER}"
   if [[ ! -f "${PLAYGROUND_FILE}" ]]; then
     annonce "Copying the default playground file: ${PLAYGROUND_DEFAULT} to: ${PLAYGROUND_FILE}"
     annonce "Ensure to update the required envirnoment variables in the ${WORKDIR}/env.tfvars file"
     cp ${PLAYGROUND_DEFAULT} ${PLAYGROUND_FILE} || failed "unable to copy the default playground file: ${PLAYGROUND_DEFAULT}"
-    sed -i "s/PLATFORM_ENV/${USER}/g" ${PLAYGROUND_FILE} || failed "unable to update the username in file: ${PLAYGROUND_FILE}"
+    sed -i "s/PLATFORM_ENV/${PLATFORM_ENV}/g" ${PLAYGROUND_FILE} || failed "unable to update the username in file: ${PLAYGROUND_FILE}"
   fi
   # update the platform environment to include the user
-  PLATFORM_ENV="${PLATFORM_ENV}-${USER}"
 }
 
 # step: retrieve the credentials

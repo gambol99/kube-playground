@@ -7,7 +7,7 @@ public_zone_name         = ""
 # An internal domain used for internal elbs
 private_zone_name        = "PLATFORM_ENV.dsp.io"
 # The environment name
-environment              = "play-PLATFORM_ENV"
+environment              = "PLATFORM_ENV"
 # REQUIRED: You have to create a KMS key and place the KeyID here
 kms_master_id            = ""
 # REQUIRED: The external dns name of the kube api
@@ -23,6 +23,10 @@ vpc_cidr                 = "10.80.0.0/16"
 # Enable the calico network policy manager for kubernetes
 enable_calico            = false
 
+# Labels applied to the compute nodes
+compute_labels = {
+  "role"  = "compute"
+}
 # The addresses permitted to access the kubeapi
 kubeapi_access_list = [
   "0.0.0.0/0"
