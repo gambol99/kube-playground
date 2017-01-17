@@ -48,6 +48,7 @@ module "master" {
   compute_subnets          = "${module.platform.compute_subnets}"
   elb_sg                   = "${module.platform.elb_sg}"
   elb_subnets              = "${module.platform.elb_subnets}"
+  elb_cidr                 = "${module.platform.elb_cidr}"
   key_name                 = "${module.platform.key_name}"
   mgmt_sg                  = "${module.platform.mgmt_sg}"
   mgmt_subnets             = "${module.platform.mgmt_subnets}"
