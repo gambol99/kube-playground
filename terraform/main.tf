@@ -1,7 +1,7 @@
 
 ## AWS Platform
 module "platform" {
-  source                   = "git::https://github.com/gambol99/kube-tf-platform.git?ref=master"
+  source                   = "git::https://github.com/gambol99/kube-tf-platform.git?ref=v0.0.1"
 
   aws_region               = "${var.aws_region}"
   compute_subnets          = "${var.compute_subnets}"
@@ -19,7 +19,7 @@ module "platform" {
 }
 
 module "master" {
-  source                   = "git::https://github.com/gambol99/kube-tf-master.git?ref=master"
+  source                   = "git::https://github.com/gambol99/kube-tf-master.git?ref=v0.0.1"
 
   coreos_image             = "${var.coreos_image}"
   coreos_image_owner       = "${var.coreos_image_owner}"
@@ -62,7 +62,7 @@ module "master" {
 }
 
 module "api" {
-  source                   = "git::https://github.com/gambol99/kube-tf-api.git?ref=master"
+  source                   = "git::https://github.com/gambol99/kube-tf-api.git?ref=v0.0.1"
 
   environment              = "${var.environment}"
   kubeapi_access_list      = "${var.kubeapi_access_list}"
@@ -88,7 +88,7 @@ module "api" {
 }
 
 module "compute" {
-  source                     = "git::https://github.com/gambol99/kube-tf-compute.git?ref=master"
+  source                     = "git::https://github.com/gambol99/kube-tf-compute.git?ref=v0.0.1"
 
   compute_asg_grace_period   = "${var.compute_asg_grace_period}"
   compute_asg_max            = "${var.compute_asg_max}"
@@ -131,7 +131,7 @@ module "compute" {
 }
 
 module "bastion" {
-  source                     = "git::https://github.com/gambol99/kube-tf-bastion.git?ref=master"
+  source                     = "git::https://github.com/gambol99/kube-tf-bastion.git?ref=v0.0.1"
 
   bastion_image              = "${var.coreos_image}"
   bastion_image_owner        = "${var.coreos_image_owner}"
